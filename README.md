@@ -1,6 +1,6 @@
 # MTCNN with Motion Detection On Raspberry Pi 3
 
-The Python version of [MTCNN](https://github.com/kpzhang93/MTCNN_face_detection_alignment) running on Raspberry Pi 3 with Love.  
+The Python version(python 2.7) of [MTCNN](https://github.com/kpzhang93/MTCNN_face_detection_alignment) running on Raspberry Pi 3 with Love.  
 Also a motion detection trigger will help to improve the quality.
 
 ### Requirement
@@ -14,7 +14,7 @@ Installation of dependencies:
   sudo pip install pyzmq jsonschema pillow numpy scipy ipython jupyter pyyaml
 ```  
 0. Raspbian
-1. Caffe && PyCaffe: [https://github.com/BVLC/caffe](https://github.com/BVLC/caffe), [My Blog](http://cdn.tiegushi.com/posts/58bce0ec3456de0027004e17)
+1. Caffe && PyCaffe: [https://github.com/BVLC/caffe](https://github.com/BVLC/caffe)
 
 Install caffe:
 ```shell
@@ -26,14 +26,18 @@ Install caffe:
   Modify next lines, instead of these
 ```shell  
   #CPU_ONLY := 1
-  /usr/lib/python2.7/dist-packages/numpy/core/include
+  #OPENCV_VERSION := 3
+  PYTHON_INCLUDE := /usr/include/python2.7 \
+  	/usr/lib/python2.7/dist-packages/numpy/core/include
   INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include
   LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib
 ```  
   with:
 ```shell  
   CPU_ONLY := 1
-  /usr/local/lib/python2.7/dist-packages/numpy/core/include
+  OPENCV_VERSION := 3
+  PYTHON_INCLUDE := /usr/include/python2.7 \
+  	/usr/local/lib/python2.7/dist-packages/numpy/core/include
   INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/
   LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/arm-linux-gnueabihf/hdf5/serial/
 ```
@@ -48,13 +52,9 @@ Install caffe:
   sudo nano ~/.bashrc
   export PYTHONPATH=/home/pi/deepdream/caffe/python:$PYTHONPATH // Add at the end of file
 ```
-Protobuf installation:
+Protobuf python support installation:
 ```shell
-  cd ~/caffe
-  cd python
-  python setup.py build
-  python setup.py google_test
-  sudo python setup.py install
+   sudo pip install protobuf
 ```
 2. OpenCV && CV2: [My Blog](http://cdn.tiegushi.com/posts/58bce1999deecf00210048b0)  
   If you have good luck, `sudo apt-get install opencv python-opencv` will have it done.
@@ -74,9 +74,13 @@ Protobuf installation:
     
   
 ### Tell mtcnn where pycaffe is
-Edit mtcnn/_init_paths.py, change **caffe_path** to your own. 
+If you had export caffe to PYTHONPATH environment var,this isnot needed.
+Edit _init_paths.py, change **caffe_path** to your own. 
 
 ### Run
 
-[Demo.ipynb](Demo.ipynb)
+```shell
+	python demo.py
+	
+- jupyter notebook demo: [Demo.ipynb](Demo.ipynb)
 

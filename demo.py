@@ -5,7 +5,7 @@ import _init_paths
 import caffe
 import cv2
 import numpy as np
-from python_wrapper import *
+#from python_wrapper import *
 import os
 
 def bbreg(boundingbox, reg):
@@ -340,14 +340,14 @@ def detect_face(img, minsize, PNet, RNet, ONet, threshold, fastresize, factor):
         # construct input for RNet
         tempimg = np.zeros((numbox, 24, 24, 3)) # (24, 24, 3, numbox)
         for k in range(numbox):
-            tmp = np.zeros((tmph[k], tmpw[k],3))
+            tmp = np.zeros((tmph[k].astype(np.int), tmpw[k].astype(np.int),3))
           
             #print "dx[k], edx[k]:", dx[k], edx[k]
             #print "dy[k], edy[k]:", dy[k], edy[k]
             #print "img.shape", img[y[k]:ey[k]+1, x[k]:ex[k]+1].shape
             #print "tmp.shape", tmp[dy[k]:edy[k]+1, dx[k]:edx[k]+1].shape
 
-            tmp[dy[k]:edy[k]+1, dx[k]:edx[k]+1] = img[y[k]:ey[k]+1, x[k]:ex[k]+1]
+            tmp[int(dy[k]):int(edy[k]+1), int(dx[k]):int(edx[k]+1)] = img[int(y[k]):int(ey[k]+1), int(x[k]):int(ex[k]+1)]
             #print "y,ey,x,ex", y[k], ey[k], x[k], ex[k]
             #print "tmp", tmp.shape
             
@@ -424,8 +424,9 @@ def detect_face(img, minsize, PNet, RNet, ONet, threshold, fastresize, factor):
 
             tempimg = np.zeros((numbox, 48, 48, 3))
             for k in range(numbox):
-                tmp = np.zeros((tmph[k], tmpw[k],3))
-                tmp[dy[k]:edy[k]+1, dx[k]:edx[k]+1] = img[y[k]:ey[k]+1, x[k]:ex[k]+1]
+                tmp = np.zeros((tmph[k].astype(np.int), tmpw[k].astype(np.int),3))
+                #tmp[dy[k]:edy[k]+1, dx[k]:edx[k]+1] = img[y[k]:ey[k]+1, x[k]:ex[k]+1]
+                tmp[int(dy[k]):int(edy[k]+1), int(dx[k]):int(edx[k]+1)] = img[int(y[k]):int(ey[k]+1), int(x[k]):int(ex[k]+1)]
                 tempimg[k,:,:,:] = cv2.resize(tmp, (48, 48))
             tempimg = (tempimg-127.5)*0.0078125 # [0,255] -> [-1,1]
                 
@@ -537,9 +538,11 @@ def main():
         img_matlab[:,:,0] = tmp
 
         # check rgb position
-        #tic()
+	print "start detect face ...\n"
+        tic()
         boundingboxes, points = detect_face(img_matlab, minsize, PNet, RNet, ONet, threshold, False, factor)
-        #toc()
+        toc()
+	print "boundingboxes:", boundingboxes, ", points: ", points
 
         ## copy img to positive folder
         #if boundingboxes.shape[0] > 0 :
@@ -550,10 +553,11 @@ def main():
         #    shutil.copy(imgpath, '/home/duino/Videos/3/disdata/negetive/'+os.path.split(imgpath)[1] )
 
 
-        for i in range(len(boundingboxes)):
-            cv2.rectangle(img, (int(boundingboxes[i][1]), int(boundingboxes[i][0])), (int(boundingboxes[i][3]), int(boundingboxes[i][2])), (0,255,0), 1)    
+        #for i in range(len(boundingboxes)):
+        #    cv2.rectangle(img, (int(boundingboxes[i][1]), int(boundingboxes[i][0])), (int(boundingboxes[i][3]), int(boundingboxes[i][2])), (0,255,0), 1)    
 
         img = drawBoxes(img, boundingboxes)
+	cv2.imwrite(imgpath.split('.')[0]+'_result.jpg',img)
         #cv2.imshow('img', img)
         #ch = cv2.waitKey(0) & 0xFF
         #if ch == 27:
